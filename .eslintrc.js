@@ -10,19 +10,22 @@ const config = {
     },
   },
   extends: [
+    'react-app',
+    'react-app/jest',
     'plugin:react/recommended',
     'standard',
     'eslint:recommended',
     'plugin:import/recommended',
     'plugin:prettier/recommended',
     'prettier',
+    'plugin:cypress/recommended',
   ],
   overrides: [],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: ['react', 'prettier', 'jest', 'import'],
+  plugins: ['react', 'prettier', 'jest', 'import', 'cypress'],
   rules: {
     'react/jsx-uses-react': 'off', // ReactのJSX変換時にReactのインポートが不要にする
     'react/react-in-jsx-scope': 'off', // JSXを使用する際にReactのスコープ内であることを要求しない
