@@ -117,6 +117,69 @@ paths:
           $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
           $ref: '#/components/responses/ServiceUnavailableResponse'
+    put:
+      tags:
+        - book
+      summary: 書籍更新API
+      description: 書籍の更新をします。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 書籍ID
+          schema:
+            type: string
+        - $ref: '#/components/parameters/authHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bookUpdateRequest'
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bookUpdateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableResponse'
+
+    delete:
+      tags:
+        - book
+      summary: 書籍削除API
+      description: 書籍の削除をします。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 書籍ID
+          schema:
+            type: string
+        - $ref: '#/components/parameters/authHeader'
+      responses:
+        '200':
+          description: A successful response.
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableResponse'
 
 components:
   parameters:
@@ -245,6 +308,77 @@ components:
           description: 読んだ感想
 
     bookGetResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 書籍id
+        title:
+          type: string
+          description: 書籍タイトル
+        url:
+          type: string
+          description: 書籍情報参照URL
+        detail:
+          type: string
+          description: 書籍詳細情報
+        review:
+          type: string
+          description: 読んだ感想
+        reviewer:
+          type: string
+          description: レビュー者（ユーザ名）
+        isMine:
+          type: boolean
+          description: 自分の投稿かどうか
+
+    bookUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: 書籍タイトル
+        url:
+          type: string
+          description: 書籍情報参照URL
+        detail:
+          type: string
+          description: 書籍詳細情報
+        review:
+          type: string
+          description: 読んだ感想
+
+    bookUpdateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 書籍id
+        title:
+          type: string
+          description: 書籍タイトル
+        url:
+          type: string
+          description: 書籍情報参照URL
+        detail:
+          type: string
+          description: 書籍詳細情報
+        review:
+          type: string
+          description: 読んだ感想
+        reviewer:
+          type: string
+          description: レビュー者（ユーザ名）
+        isMine:
+          type: boolean
+          description: 自分の投稿かどうか
+
+    bookListGetResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/bookData'
+
+    bookData:
       type: object
       properties:
         id:
