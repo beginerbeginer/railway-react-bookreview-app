@@ -17,12 +17,7 @@ paths:
       summary: 書籍一覧取得API
       description: 書籍一覧を取得します。10件ずつしかデータが返ってこないため、次の10件を取得したい場合はクエリパラメータのoffsetに何番目のデータまでは取得したのかを指定しなくてはなりません。
       parameters:
-        - name: offset
-          in: query
-          description: 何番目のから10件取得するか
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/offsetParam'
       responses:
         '200':
           description: A successful response.
@@ -33,54 +28,24 @@ paths:
                 items:
                   $ref: '#/components/schemas/bookCreateRequest'
         '400':
-          description: Requested data was wrong
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestError'
+          $ref: '#/components/responses/BadRequestResponse'
         '401':
-          description: Unauthorized error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
+          $ref: '#/components/responses/UnauthorizedResponse'
         '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalServerError'
+          $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
-          description: Service Unavailable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceUnavailableError'
+          $ref: '#/components/responses/ServiceUnavailableResponse'
   /books:
     get:
       tags:
         - book
       summary: 書籍一覧取得API
-      description: 同上
+      description: 書籍一覧を取得します。10件ずつしかデータが返ってこないため、次の10件を取得したい場合はクエリパラメータのoffsetに何番目のデータまでは取得したのかを指定しなくてはなりません。
       parameters:
-        - name: Authorization
-          in: header
-          description: 認証トーク(JWT) Bearer XXX
-          required: true
-          schema:
-            type: string
-        - name: offset
-          in: query
-          description: 何番目のから10件取得するか
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/authHeader'
+        - $ref: '#/components/parameters/offsetParam'
       responses:
         '200':
           description: A successful response.
@@ -91,83 +56,36 @@ paths:
                 items:
                   $ref: '#/components/schemas/bookCreateRequest'
         '400':
-          description: Requested data was wrong
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestError'
+          $ref: '#/components/responses/BadRequestResponse'
         '401':
-          description: Unauthorized error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
+          $ref: '#/components/responses/UnauthorizedResponse'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalServerError'
+          $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
-          description: Service Unavailable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceUnavailableError'
+          $ref: '#/components/responses/ServiceUnavailableResponse'
     post:
       tags:
         - book
       summary: 書籍投稿API
       description: 書籍の新規作成をします。
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          description: 認証トークン(JWT) Bearer XXX
-          schema:
-            type: string
+        - $ref: '#/components/parameters/authHeader'
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                url:
-                  type: string
-                detail:
-                  type: string
-                review:
-                  type: string
+              $ref: '#/components/schemas/bookCreateRequest'
       responses:
         '200':
           description: A successful response.
         '400':
-          description: Requested data was wrong
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestError'
+          $ref: '#/components/responses/BadRequestResponse'
         '401':
-          description: Unauthorized error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
+          $ref: '#/components/responses/UnauthorizedResponse'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalServerError'
+          $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
-          description: Service Unavailable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceUnavailableError'
-
+          $ref: '#/components/responses/ServiceUnavailableResponse'
   /books/{id}:
     get:
       tags:
@@ -175,12 +93,7 @@ paths:
       summary: 書籍取得API
       description: 書籍情報を取得します。
       parameters:
-        - name: Authorization
-          in: header
-          required: true
-          description: 認証トークン(JWT) Bearer XXX
-          schema:
-            type: string
+        - $ref: '#/components/parameters/authHeader'
         - name: id
           in: path
           required: true
@@ -195,37 +108,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/bookGetResponse'
         '400':
-          description: Requested data was wrong
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestError'
+          $ref: '#/components/responses/BadRequestResponse'
         '401':
-          description: Unauthorized error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
+          $ref: '#/components/responses/UnauthorizedResponse'
         '404':
-          description: Not found error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundError'
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalServerError'
+          $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
-          description: Service Unavailable
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceUnavailableError'
+          $ref: '#/components/responses/ServiceUnavailableResponse'
 
 components:
+  parameters:
+    authHeader:
+      name: Authorization
+      in: header
+      description: 認証トーク(JWT) Bearer XXX
+      required: true
+      schema:
+        type: string
+    offsetParam:
+      name: offset
+      in: query
+      description: 何番目のから10件取得するか
+      required: true
+      schema:
+        type: string
+  responses:
+    BadRequestResponse:
+      description: Requested data was wrong
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+    UnauthorizedResponse:
+      description: Unauthorized error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+    NotFoundResponse:
+      description: Not found error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
+    InternalServerErrorResponse:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+    ServiceUnavailableResponse:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceUnavailableError'
+
   schemas:
     SigninRequest:
       type: object
