@@ -153,7 +153,6 @@ paths:
           $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
           $ref: '#/components/responses/ServiceUnavailableResponse'
-
     delete:
       tags:
         - book
@@ -176,6 +175,31 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '404':
           $ref: '#/components/responses/NotFoundResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableResponse'
+
+  /logs:
+    post:
+      tags:
+        - log
+      summary: 一覧画面で選択した書籍レビューをログとして送信します。
+      parameters:
+        - $ref: '#/components/parameters/authHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogRequest'
+      responses:
+        '200':
+          description: A successful response.
+        '400':
+          $ref: '#/components/responses/BadRequestResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
         '503':
