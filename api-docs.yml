@@ -1,0 +1,401 @@
+openapi: 3.0.3
+info:
+  title: TechTrain Railway Mission
+  version: 1.0.0
+  description: TechTrain Railway Missionで使用する書籍API（仮）
+servers:
+  - url: https://ifrbzeaz2b.execute-api.ap-northeast-1.amazonaws.com
+tags:
+  - name: 'book'
+    description: '本関連API'
+
+paths:
+  /public/books:
+    get:
+      tags:
+        - book
+      summary: 書籍一覧取得API
+      description: 書籍一覧を取得します。10件ずつしかデータが返ってこないため、次の10件を取得したい場合はクエリパラメータのoffsetに何番目のデータまでは取得したのかを指定しなくてはなりません。
+      parameters:
+        - name: offset
+          in: query
+          description: 何番目のから10件取得するか
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/bookCreateRequest'
+        '400':
+          description: Requested data was wrong
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Unauthorized error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailableError'
+  /books:
+    get:
+      tags:
+        - book
+      summary: 書籍一覧取得API
+      description: 同上
+      parameters:
+        - name: Authorization
+          in: header
+          description: 認証トーク(JWT) Bearer XXX
+          required: true
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: 何番目のから10件取得するか
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/bookCreateRequest'
+        '400':
+          description: Requested data was wrong
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Unauthorized error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailableError'
+    post:
+      tags:
+        - book
+      summary: 書籍投稿API
+      description: 書籍の新規作成をします。
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: 認証トークン(JWT) Bearer XXX
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                url:
+                  type: string
+                detail:
+                  type: string
+                review:
+                  type: string
+      responses:
+        '200':
+          description: A successful response.
+        '400':
+          description: Requested data was wrong
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Unauthorized error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailableError'
+
+  /books/{id}:
+    get:
+      tags:
+        - book
+      summary: 書籍取得API
+      description: 書籍情報を取得します。
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: 認証トークン(JWT) Bearer XXX
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: 書籍ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bookGetResponse'
+        '400':
+          description: Requested data was wrong
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '401':
+          description: Unauthorized error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailableError'
+
+components:
+  schemas:
+    SigninRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: メールアドレス
+        password:
+          type: string
+          description: パスワード
+
+    SigninResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: クライアント側で保存するトークン
+
+    UserCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: ユーザ名
+        email:
+          type: string
+          description: メールアドレス
+        password:
+          type: string
+          description: パスワード
+
+    UserCreateResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: クライアント側で保存するトークン
+
+    UserGetResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          description: ユーザ名
+        iconUrl:
+          type: string
+          description: アイコンのURL
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: ユーザ名
+
+    UserUpdateResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          description: ユーザ名
+
+    bookCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: 書籍タイトル
+        url:
+          type: string
+          description: 書籍情報参照URL
+        detail:
+          type: string
+          description: 書籍詳細情報
+        review:
+          type: string
+          description: 読んだ感想
+
+    bookGetResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 書籍id
+        title:
+          type: string
+          description: 書籍タイトル
+        url:
+          type: string
+          description: 書籍情報参照URL
+        detail:
+          type: string
+          description: 書籍詳細情報
+        review:
+          type: string
+          description: 読んだ感想
+        reviewer:
+          type: string
+          description: レビュー者（ユーザ名）
+        isMine:
+          type: boolean
+          description: 自分の投稿かどうか
+
+    NotFoundError:
+      type: object
+      properties:
+        ErrorCode:
+          type: number
+          example: 404
+        ErrorMessageJP:
+          type: string
+          example: その書籍はまだレビューされていません。
+        ErrorMessageEN:
+          type: string
+          example: This book is not reviewed yet.
+    UnauthorizedError:
+      type: object
+      properties:
+        ErrorCode:
+          type: number
+          example: 403
+        ErrorMessageJP:
+          type: string
+          example: 認証エラー
+        ErrorMessageEN:
+          type: string
+          example: You are not authorized user
+    BadRequestError:
+      type: object
+      properties:
+        ErrorCode:
+          type: number
+          example: 400
+        ErrorMessageJP:
+          type: string
+          example: バリデーションエラー
+        ErrorMessageEN:
+          type: string
+          example: validation error
+    InternalServerError:
+      type: object
+      properties:
+        ErrorCode:
+          type: number
+          example: 500
+        ErrorMessageJP:
+          type: string
+          example: サーバでエラーが発生しました。
+        ErrorMessageEN:
+          type: string
+          example: Error occurred at server.
+    ServiceUnavailableError:
+      type: object
+      properties:
+        ErrorCode:
+          type: number
+          example: 503
+        ErrorMessageJP:
+          type: string
+          example: 現在サービスを利用できません。Herokuのコールドスタートの影響の可能性もあります。もう一度お試しいただくか、1日経っても改善しない場合は、管理者にお問い合わせください。
+        ErrorMessageEN:
+          type: string
+          example: The service is currently unavailable. It could also be the effect of a cold start on Heroku. Try it again, or if it doesn't improve after a day, contact your administrator.
+    LogRequest:
+      type: object
+      properties:
+        selectBookId:
+          type: string
+    IconUploadResponse:
+      type: object
+      properties:
+        iconUrl:
+          type: string
