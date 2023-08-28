@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { useReducer } from 'react'
 
 import { URL } from '../const'
@@ -22,30 +23,38 @@ const reducer = (state, action) => {
   }
 }
 
+const postLoginRequest = async (email, password) => {
+  const response = await fetch(`${URL}/signin`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  })
+
+  if (response.ok) {
+    return response.json()
+  } else {
+    const errorData = await response.json()
+    throw new Error(errorData.ErrorMessageJP)
+  }
+}
+
 export const Signin = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch(`${URL}/signin`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: state.email, password: state.password }),
-      })
+  const mutation = useMutation(() => postLoginRequest(state.email, state.password), {
+    onSuccess: (data) => {
+      localStorage.setItem('token', data.token)
+      dispatch({ type: 'SET_ERROR_MESSAGE', payload: '' })
+    },
+    onError: (error) => {
+      dispatch({ type: 'SET_ERROR_MESSAGE', payload: error.message })
+    },
+  })
 
-      if (response.ok) {
-        const data = await response.json()
-        localStorage.setItem('token', data.token)
-        dispatch({ type: 'SET_ERROR_MESSAGE', payload: '' })
-      } else if (response.status >= 400 && response.status < 500) {
-        const errorData = await response.json()
-        dispatch({ type: 'SET_ERROR_MESSAGE', payload: errorData.ErrorMessageJP })
-      }
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR_MESSAGE', payload: 'エラーが発生しました。もう一度お試しください。' })
-    }
+  const handleSubmit = () => {
+    mutation.mutate()
   }
 
   return (
