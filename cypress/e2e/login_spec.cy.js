@@ -10,7 +10,7 @@ describe('Login Page', () => {
     cy.get('button').click()
 
     // エラーメッセージが表示されることを確認
-    cy.get('.error-message').should('contain', 'Email and Password are required!')
+    cy.get('.error-message').should('contain', 'emailとPasswordは必須です!')
 
     // Passwordのみを入力してLoginボタンをクリック
     cy.get('input[type="email"]').clear()
@@ -18,16 +18,15 @@ describe('Login Page', () => {
     cy.get('button').click()
 
     // エラーメッセージが表示されることを確認
-    cy.get('.error-message').should('contain', 'Email and Password are required!')
+    cy.get('.error-message').should('contain', 'emailとPasswordは必須です!')
   })
 
-  it('does not show error message if both email and password are provided', () => {
+  it('show error message if both email and password are provided', () => {
     // EmailとPasswordを入力してLoginボタンをクリック
     cy.get('input[type="email"]').type('test@example.com')
     cy.get('input[type="password"]').type('password')
     cy.get('button').click()
 
-    // エラーメッセージが表示されないことを確認
-    cy.get('.error-message').should('not.exist')
+    cy.get('.error-message').should('contain', 'パスワードが正しくありません。')
   })
 })
