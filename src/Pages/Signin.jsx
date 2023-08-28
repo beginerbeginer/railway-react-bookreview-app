@@ -26,11 +26,6 @@ export const Signin = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   const handleSubmit = async () => {
-    if (!state.email || !state.password) {
-      dispatch({ type: 'SET_ERROR_MESSAGE', payload: 'emailとPasswordは必須です!' })
-      return
-    }
-
     try {
       const response = await fetch(`${URL}/signin`, {
         method: 'POST',

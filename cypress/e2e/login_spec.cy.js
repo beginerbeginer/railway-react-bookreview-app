@@ -10,7 +10,7 @@ describe('Login Page', () => {
     cy.get('button').click()
 
     // エラーメッセージが表示されることを確認
-    cy.get('.error-message').should('contain', 'emailとPasswordは必須です!')
+    cy.get('.error-message').should('contain', 'バリデーションエラー')
 
     // Passwordのみを入力してLoginボタンをクリック
     cy.get('input[type="email"]').clear()
@@ -18,7 +18,7 @@ describe('Login Page', () => {
     cy.get('button').click()
 
     // エラーメッセージが表示されることを確認
-    cy.get('.error-message').should('contain', 'emailとPasswordは必須です!')
+    cy.get('.error-message').should('contain', 'バリデーションエラー')
   })
 
   it('show error message if both email and password are provided', () => {
