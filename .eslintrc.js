@@ -30,7 +30,7 @@ const config = {
     'react/jsx-uses-react': 'off', // ReactのJSX変換時にReactのインポートが不要にする
     'react/react-in-jsx-scope': 'off', // JSXを使用する際にReactのスコープ内であることを要求しない
     'prettier/prettier': 'error', // Prettierのフォーマットルールに違反した場合にエラーを出力する
-    'jest/consistent-test-it': ['error', { fn: 'test' }], // Jestでのテスト関数名を一貫性を持って'test'とする
+    'jest/consistent-test-it': ['error', { fn: 'it' }], // Jestでのテスト関数名を一貫性を持って'it'とする
     'jest/require-top-level-describe': ['error'], // Jestのテストケースをトップレベルのdescribeブロック内に要求する
     'import/order': [
       // インポートの順序を指定したルールに従って整理する
