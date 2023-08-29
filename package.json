@@ -21,6 +21,7 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "sass": "^1.66.1",
+    "sass-loader": "^13.3.2",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
