@@ -5,7 +5,7 @@ import './scss/App.scss'
 
 const queryClient = new QueryClient()
 
-function App() {
+export const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="App">
@@ -16,5 +16,3 @@ function App() {
     </QueryClientProvider>
   )
 }
-
-export default App
