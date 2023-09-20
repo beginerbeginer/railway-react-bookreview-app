@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
 
+import { NotFound } from '../Pages/NotFound.jsx'
 import { Signin } from '../Pages/Signin.jsx'
 import { Signup } from '../Pages/Signup.jsx'
 
@@ -25,6 +26,7 @@ const RoutesWithLinks = () => {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       {location.pathname === '/login' && <Link to="/signup">登録はこちらから</Link>}
     </>
