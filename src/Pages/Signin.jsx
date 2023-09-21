@@ -58,21 +58,23 @@ export const Signin = () => {
   }
 
   return (
-    <div className="signin">
+    <form className="signin">
       <input
         type="email"
         placeholder="Email"
         value={state.email}
+        autoComplete="username"
         onChange={(e) => dispatch({ type: 'SET_EMAIL', payload: e.target.value })}
       />
       <input
         type="password"
         placeholder="Password"
         value={state.password}
+        autoComplete="current-password"
         onChange={(e) => dispatch({ type: 'SET_PASSWORD', payload: e.target.value })}
       />
       <button onClick={handleSubmit}>Login</button>
       {state.errorMessage && <p className="error-message">{state.errorMessage}</p>}
-    </div>
+    </form>
   )
 }

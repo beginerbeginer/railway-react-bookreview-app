@@ -130,19 +130,19 @@ export const Signup = () => {
   }
 
   return (
-    <div className="signup">
+    <form className="signup">
       {errors.name && <div className="error">{errors.name.message}</div>}
       {errors.email && <div className="error">{errors.email.message}</div>}
       {errors.password && <div className="error">{errors.password.message}</div>}
       {showModal ? <Modal resizedImageBlob={resizedImageBlob} closeModal={closeModal} /> : null}
       <input key={inputKey} type="file" aria-label="画像を追加" onChange={handleFileChange} />
       <input type="text" placeholder="名前" {...register('name')} />
-      <input type="text" placeholder="Email" {...register('email')} />
-      <input type="password" placeholder="Password" {...register('password')} />
+      <input type="text" placeholder="Email" {...register('email')} autoComplete="username" />
+      <input type="password" placeholder="Password" {...register('password')} autoComplete="current-password" />
       <button onClick={handleSubmit(onSubmit)}>登録</button>
       <div className="login-link">
         既にアカウントをお持ちですか？<a href="/login">ログイン</a>
       </div>
-    </div>
+    </form>
   )
 }
