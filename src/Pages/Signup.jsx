@@ -1,50 +1,41 @@
+import Compressor from 'compressorjs'
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 
-import { URL } from '../const'
+import { URL as API_URL } from '../const'
 import '../scss/signup.scss'
 
-const createUser = async (name, email, password) => {
-  const response = await fetch(`${URL}/users`, {
+const postUserData = async (url, body) => {
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      name,
-      email,
-      password,
-    }),
+    body: JSON.stringify(body),
   })
+  return response
+}
 
-  if (!response.ok) {
-    throw new Error('User creation failed')
-  }
+const postImage = async (url, formData, headers = {}) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+  })
+  return response
+}
 
+const createUser = async (name, email, password) => {
+  const response = await postUserData(`${API_URL}/users`, { name, email, password })
   return response.json()
 }
 
 const uploadImage = async (file, token) => {
-  console.log('Upload function called with token:', token)
-  console.log('File to upload:', file)
-
   const formData = new FormData()
   formData.append('icon', file)
-
-  const response = await fetch(`${URL}/uploads`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
+  const response = await postImage(`${API_URL}/uploads`, formData, {
+    Authorization: `Bearer ${token}`,
   })
-
-  if (!response.ok) {
-    throw new Error('Image upload failed')
-  }
-
-  console.log('Server response:', response)
-  console.log('Server response status:', response.status)
-
   return response.json()
 }
 
@@ -54,15 +45,39 @@ export const Signup = () => {
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState([])
   const [file, setFile] = useState(null)
-  const [debugToken, setDebugToken] = useState('') // <-- Add this state
+  const [showModal, setShowModal] = useState(false)
+  const [resizedImageBlob, setResizedImageBlob] = useState(null)
+  const [inputKey, setInputKey] = useState(Date.now())
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0]
+    if (selectedFile) {
+      // eslint-disable-next-line no-new
+      new Compressor(selectedFile, {
+        quality: 0.6, // 60%の画質で圧縮する
+        success(result) {
+          setResizedImageBlob(result)
+          setShowModal(true)
+        },
+        error(err) {
+          console.error('Compressor error:', err)
+        },
+      })
+    }
+  }
+
+  const closeModal = () => {
+    setShowModal(false)
+    setResizedImageBlob(null)
+    setFile(null)
+    // 画像の名前をリセットするため
+    setInputKey(Date.now())
+  }
 
   const handleSignup = async () => {
     try {
       const userResponse = await createUser(name, email, password)
       localStorage.setItem('token', userResponse.token)
-      setDebugToken(userResponse.token) // <-- Set the token to the state
-
-      // トークン取得後に画像をアップロードする
       if (file) {
         await uploadImage(file, userResponse.token)
       }
@@ -70,16 +85,31 @@ export const Signup = () => {
       console.error(error)
       setErrors((prev) => [...prev, '登録中にエラーが発生しました。'])
     }
+    closeModal()
+  }
+
+  const Modal = ({ resizedImageBlob, closeModal }) => {
+    return (
+      <div className="modal">
+        <img src={URL.createObjectURL(resizedImageBlob)} alt="Resized Preview" />
+        <button onClick={closeModal}>画像を削除</button>
+      </div>
+    )
+  }
+
+  Modal.propTypes = {
+    resizedImageBlob: PropTypes.instanceOf(Blob).isRequired,
+    closeModal: PropTypes.func.isRequired,
   }
 
   return (
     <div className="signup">
-      <input type="file" aria-label="画像を追加" onChange={(e) => setFile(e.target.files[0])} />
+      {showModal ? <Modal resizedImageBlob={resizedImageBlob} closeModal={closeModal} /> : null}
+      <input key={inputKey} type="file" aria-label="画像を追加" onChange={handleFileChange} />
       <input type="text" placeholder="名前" onChange={(e) => setName(e.target.value)} />
       <input type="text" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
       <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
       <button onClick={handleSignup}>登録</button>
-      {debugToken && <div className="debug-token">Token: {debugToken}</div>}
       {errors.map((error, index) => (
         <div key={index} className="error">
           {error}
