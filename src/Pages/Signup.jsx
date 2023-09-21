@@ -1,9 +1,13 @@
 import Compressor from 'compressorjs'
 import PropTypes from 'prop-types'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 import { URL as API_URL } from '../const'
 import '../scss/signup.scss'
+
+const PASSWORD_PATTERN = '/^[A-Za-z0-9!"#$%&\'()-^@[];:,./=|~+*{}<>?_]+$/'
+const EMAIL_PATTERN = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
 
 const postUserData = async (url, body) => {
   const response = await fetch(url, {
@@ -40,14 +44,16 @@ const uploadImage = async (file, token) => {
 }
 
 export const Signup = () => {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [errors, setErrors] = useState([])
   const [file, setFile] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [resizedImageBlob, setResizedImageBlob] = useState(null)
   const [inputKey, setInputKey] = useState(Date.now())
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm()
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
@@ -74,18 +80,18 @@ export const Signup = () => {
     setInputKey(Date.now())
   }
 
-  const handleSignup = async () => {
+  const onSubmit = async (data) => {
     try {
-      const userResponse = await createUser(name, email, password)
+      const userResponse = await createUser(data.name, data.email, data.password)
       localStorage.setItem('token', userResponse.token)
       if (file) {
         await uploadImage(file, userResponse.token)
       }
+      closeModal()
+      reset({ name: '', email: '', password: '' })
     } catch (error) {
       console.error(error)
-      setErrors((prev) => [...prev, '登録中にエラーが発生しました。'])
     }
-    closeModal()
   }
 
   const Modal = ({ resizedImageBlob, closeModal }) => {
@@ -106,15 +112,36 @@ export const Signup = () => {
     <div className="signup">
       {showModal ? <Modal resizedImageBlob={resizedImageBlob} closeModal={closeModal} /> : null}
       <input key={inputKey} type="file" aria-label="画像を追加" onChange={handleFileChange} />
-      <input type="text" placeholder="名前" onChange={(e) => setName(e.target.value)} />
-      <input type="text" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={handleSignup}>登録</button>
-      {errors.map((error, index) => (
-        <div key={index} className="error">
-          {error}
-        </div>
-      ))}
+      <input type="text" placeholder="名前" {...register('name', { required: '名前は必須です。' })} />
+      <input
+        type="text"
+        placeholder="Email"
+        {...register('email', {
+          required: 'メールアドレスは必須です。',
+          pattern: {
+            value: EMAIL_PATTERN,
+            message: '無効なメールアドレスの形式です。',
+          },
+        })}
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        {...register('password', {
+          required: 'パスワードは必須です。',
+          minLength: { value: 12, message: 'パスワードは12文字以上である必要があります。' },
+          pattern: {
+            value: PASSWORD_PATTERN,
+            message: 'パスワードには、半角英数字記号のみ使用できます。',
+          },
+        })}
+      />
+      {errors.name && <div className="error">{errors.name.message}</div>}
+      {errors.email && <div className="error">{errors.email.message}</div>}
+      {errors.password && <div className="error">{errors.password.message}</div>}
+
+      <button onClick={handleSubmit(onSubmit)}>登録</button>
       <div className="login-link">
         既にアカウントをお持ちですか？<a href="/login">ログイン</a>
       </div>
