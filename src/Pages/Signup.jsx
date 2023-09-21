@@ -1,17 +1,32 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import Compressor from 'compressorjs'
 import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import * as yup from 'yup'
 
 import { URL as API_URL } from '../const'
 import '../scss/signup.scss'
 
-const PASSWORD_PATTERN = /^[A-Za-z0-9]+$/
-const EMAIL_PATTERN = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$/i
-// eslint-disable-next-line no-irregular-whitespace
-const isOnlyWhitespace = (str) => /^[\s　]+$/.test(str)
-// eslint-disable-next-line no-irregular-whitespace
-const hasLeadingOrTrailingWhitespace = (str) => /^[\s　]+|[\s　]+$/.test(str)
+const FULL_WIDTH_SPACE = '\u3000'
+const schema = yup.object().shape({
+  name: yup
+    .string()
+    .required('名前は必須です。')
+    .max(30, '名前は30文字以下にしてください。')
+    .notOneOf([' ', FULL_WIDTH_SPACE], '名前に空白文字のみは使えません。')
+    .matches(
+      new RegExp(`^[^\\s${FULL_WIDTH_SPACE}].*[^\\s${FULL_WIDTH_SPACE}]$`),
+      '名前の前後に空白文字は使用できません。'
+    ),
+  email: yup.string().required('メールアドレスは必須です。').email('無効なメールアドレスの形式です。'),
+  password: yup
+    .string()
+    .required('パスワードは必須です。')
+    .min(12, 'パスワードは12文字以上にしてください。')
+    .max(30, 'パスワードは30文字以下にしてください。')
+    .matches(/^[A-Za-z0-9]+$/, 'パスワードは半角英数字のみ使用できます。'),
+})
 
 const postUserData = async (url, body) => {
   const response = await fetch(url, {
@@ -57,7 +72,9 @@ export const Signup = () => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm()
+  } = useForm({
+    resolver: yupResolver(schema),
+  })
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
@@ -119,43 +136,9 @@ export const Signup = () => {
       {errors.password && <div className="error">{errors.password.message}</div>}
       {showModal ? <Modal resizedImageBlob={resizedImageBlob} closeModal={closeModal} /> : null}
       <input key={inputKey} type="file" aria-label="画像を追加" onChange={handleFileChange} />
-      <input
-        type="text"
-        placeholder="名前"
-        {...register('name', {
-          required: '名前は必須です。',
-          maxLength: { value: 30, message: '名前は30文字以下にしてください。' },
-          validate: {
-            notOnlyWhitespace: (value) => !isOnlyWhitespace(value) || '名前に空白文字のみは使えません。',
-            noLeadingOrTrailingWhitespace: (value) =>
-              !hasLeadingOrTrailingWhitespace(value) || '名前の前後に空白文字は使用できません。',
-          },
-        })}
-      />
-      <input
-        type="text"
-        placeholder="Email"
-        {...register('email', {
-          required: 'メールアドレスは必須です。',
-          pattern: {
-            value: EMAIL_PATTERN,
-            message: '無効なメールアドレスの形式です。',
-          },
-        })}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        {...register('password', {
-          required: 'パスワードは必須です。',
-          minLength: { value: 12, message: 'パスワードは12文字以上にしてください。' },
-          maxLength: { value: 30, message: 'パスワードは30文字以下にしてください。' },
-          pattern: {
-            value: PASSWORD_PATTERN,
-            message: 'パスワードは半角英数字のみ使用できます。',
-          },
-        })}
-      />
+      <input type="text" placeholder="名前" {...register('name')} />
+      <input type="text" placeholder="Email" {...register('email')} />
+      <input type="password" placeholder="Password" {...register('password')} />
       <button onClick={handleSubmit(onSubmit)}>登録</button>
       <div className="login-link">
         既にアカウントをお持ちですか？<a href="/login">ログイン</a>
