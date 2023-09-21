@@ -6,8 +6,12 @@ import { useForm } from 'react-hook-form'
 import { URL as API_URL } from '../const'
 import '../scss/signup.scss'
 
-const PASSWORD_PATTERN = '/^[A-Za-z0-9!"#$%&\'()-^@[];:,./=|~+*{}<>?_]+$/'
-const EMAIL_PATTERN = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
+const PASSWORD_PATTERN = /^[A-Za-z0-9]+$/
+const EMAIL_PATTERN = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}$/i
+// eslint-disable-next-line no-irregular-whitespace
+const isOnlyWhitespace = (str) => /^[\s　]+$/.test(str)
+// eslint-disable-next-line no-irregular-whitespace
+const hasLeadingOrTrailingWhitespace = (str) => /^[\s　]+|[\s　]+$/.test(str)
 
 const postUserData = async (url, body) => {
   const response = await fetch(url, {
@@ -60,7 +64,7 @@ export const Signup = () => {
     if (selectedFile) {
       // eslint-disable-next-line no-new
       new Compressor(selectedFile, {
-        quality: 0.6, // 60%の画質で圧縮する
+        quality: 0.6,
         success(result) {
           setResizedImageBlob(result)
           setShowModal(true)
@@ -110,9 +114,24 @@ export const Signup = () => {
 
   return (
     <div className="signup">
+      {errors.name && <div className="error">{errors.name.message}</div>}
+      {errors.email && <div className="error">{errors.email.message}</div>}
+      {errors.password && <div className="error">{errors.password.message}</div>}
       {showModal ? <Modal resizedImageBlob={resizedImageBlob} closeModal={closeModal} /> : null}
       <input key={inputKey} type="file" aria-label="画像を追加" onChange={handleFileChange} />
-      <input type="text" placeholder="名前" {...register('name', { required: '名前は必須です。' })} />
+      <input
+        type="text"
+        placeholder="名前"
+        {...register('name', {
+          required: '名前は必須です。',
+          maxLength: { value: 30, message: '名前は30文字以下にしてください。' },
+          validate: {
+            notOnlyWhitespace: (value) => !isOnlyWhitespace(value) || '名前に空白文字のみは使えません。',
+            noLeadingOrTrailingWhitespace: (value) =>
+              !hasLeadingOrTrailingWhitespace(value) || '名前の前後に空白文字は使用できません。',
+          },
+        })}
+      />
       <input
         type="text"
         placeholder="Email"
@@ -124,23 +143,19 @@ export const Signup = () => {
           },
         })}
       />
-
       <input
         type="password"
         placeholder="Password"
         {...register('password', {
           required: 'パスワードは必須です。',
-          minLength: { value: 12, message: 'パスワードは12文字以上である必要があります。' },
+          minLength: { value: 12, message: 'パスワードは12文字以上にしてください。' },
+          maxLength: { value: 30, message: 'パスワードは30文字以下にしてください。' },
           pattern: {
             value: PASSWORD_PATTERN,
-            message: 'パスワードには、半角英数字記号のみ使用できます。',
+            message: 'パスワードは半角英数字のみ使用できます。',
           },
         })}
       />
-      {errors.name && <div className="error">{errors.name.message}</div>}
-      {errors.email && <div className="error">{errors.email.message}</div>}
-      {errors.password && <div className="error">{errors.password.message}</div>}
-
       <button onClick={handleSubmit(onSubmit)}>登録</button>
       <div className="login-link">
         既にアカウントをお持ちですか？<a href="/login">ログイン</a>
