@@ -3,6 +3,7 @@ import Compressor from 'compressorjs'
 import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import * as yup from 'yup'
 
 import { URL as API_URL } from '../const'
@@ -141,7 +142,7 @@ export const Signup = () => {
       <input type="password" placeholder="Password" {...register('password')} autoComplete="current-password" />
       <button onClick={handleSubmit(onSubmit)}>登録</button>
       <div className="login-link">
-        既にアカウントをお持ちですか？<a href="/login">ログイン</a>
+        既にアカウントをお持ちですか？<Link to="/login">ログイン</Link>
       </div>
     </form>
   )

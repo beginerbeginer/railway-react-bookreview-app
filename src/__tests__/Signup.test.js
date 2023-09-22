@@ -1,10 +1,15 @@
 import { render, screen } from '@testing-library/react'
+import { BrowserRouter } from 'react-router-dom'
 
 import { Signup } from '../Pages/Signup.jsx'
 
 describe('Signup', () => {
   it('ログイン画面に必要なコンポーネントが存在する', () => {
-    render(<Signup />)
+    render(
+      <BrowserRouter>
+        <Signup />
+      </BrowserRouter>
+    )
 
     // 入力フォームが存在するか確認
     expect(screen.getByPlaceholderText('名前')).toBeInTheDocument()
