@@ -4,9 +4,11 @@ import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import * as yup from 'yup'
 
-import { URL as API_URL } from '../const'
+import { ToastNotifications } from '../Components/ToastNotifications.jsx'
+import { URL as API_URL, SUCCESS_MESSAGE, ERROR_MESSAGE } from '../const'
 import '../scss/signup.scss'
 
 const FULL_WIDTH_SPACE = '\u3000'
@@ -88,7 +90,7 @@ export const Signup = () => {
           setShowModal(true)
         },
         error(err) {
-          console.error('Compressor error:', err)
+          toast.error('Compressor error:', err)
         },
       })
     }
@@ -102,18 +104,35 @@ export const Signup = () => {
     setInputKey(Date.now())
   }
 
-  const onSubmit = async (data) => {
+  const postUserAndUserIcon = async (data) => {
     try {
       const userResponse = await createUser(data.name, data.email, data.password)
+
+      if (!userResponse || !userResponse.token) {
+        handleError(userResponse)
+        return
+      }
+
       localStorage.setItem('token', userResponse.token)
+
       if (file) {
         await uploadImage(file, userResponse.token)
       }
+
+      toast.success(SUCCESS_MESSAGE)
       closeModal()
       reset({ name: '', email: '', password: '' })
     } catch (error) {
-      console.error(error)
+      toast.error(ERROR_MESSAGE)
     }
+  }
+
+  const handleError = (response) => {
+    if (!response || !response.ErrorCode) return
+
+    const errorMessage = response.ErrorMessageJP ? response.ErrorMessageJP : ERROR_MESSAGE
+
+    toast.error(errorMessage)
   }
 
   const Modal = ({ resizedImageBlob, closeModal }) => {
@@ -131,19 +150,22 @@ export const Signup = () => {
   }
 
   return (
-    <form className="signup">
-      {errors.name && <div className="error-message">{errors.name.message}</div>}
-      {errors.email && <div className="error-message">{errors.email.message}</div>}
-      {errors.password && <div className="error-message">{errors.password.message}</div>}
-      {showModal ? <Modal resizedImageBlob={resizedImageBlob} closeModal={closeModal} /> : null}
-      <input key={inputKey} type="file" aria-label="画像を追加" onChange={handleFileChange} />
-      <input type="text" placeholder="名前" {...register('name')} />
-      <input type="text" placeholder="Email" {...register('email')} autoComplete="username" />
-      <input type="password" placeholder="Password" {...register('password')} autoComplete="current-password" />
-      <button onClick={handleSubmit(onSubmit)}>登録</button>
-      <div className="login-link">
-        既にアカウントをお持ちですか？<Link to="/login">ログイン</Link>
-      </div>
-    </form>
+    <>
+      <ToastNotifications />
+      <form className="signup">
+        {errors.name && <div className="error-message">{errors.name.message}</div>}
+        {errors.email && <div className="error-message">{errors.email.message}</div>}
+        {errors.password && <div className="error-message">{errors.password.message}</div>}
+        {showModal ? <Modal resizedImageBlob={resizedImageBlob} closeModal={closeModal} /> : null}
+        <input key={inputKey} type="file" aria-label="画像を追加" onChange={handleFileChange} />
+        <input type="text" placeholder="名前" {...register('name')} />
+        <input type="text" placeholder="Email" {...register('email')} autoComplete="username" />
+        <input type="password" placeholder="Password" {...register('password')} autoComplete="current-password" />
+        <button onClick={handleSubmit(postUserAndUserIcon)}>登録</button>
+        <div className="login-link">
+          既にアカウントをお持ちですか？<Link to="/login">ログイン</Link>
+        </div>
+      </form>
+    </>
   )
 }
