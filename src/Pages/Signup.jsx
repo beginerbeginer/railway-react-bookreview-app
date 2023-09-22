@@ -8,20 +8,15 @@ import { toast } from 'react-toastify'
 import * as yup from 'yup'
 
 import { ToastNotifications } from '../Components/ToastNotifications.jsx'
-import { URL as API_URL, SUCCESS_MESSAGE, ERROR_MESSAGE } from '../const'
+import { URL as API_URL, SUCCESS_MESSAGE, ERROR_MESSAGE, NAME_REGEX } from '../const'
 import '../scss/signup.scss'
 
-const FULL_WIDTH_SPACE = '\u3000'
 const schema = yup.object().shape({
   name: yup
     .string()
     .required('名前は必須です。')
     .max(30, '名前は30文字以下にしてください。')
-    .notOneOf([' ', FULL_WIDTH_SPACE], '名前に空白文字のみは使えません。')
-    .matches(
-      new RegExp(`^[^\\s${FULL_WIDTH_SPACE}].*[^\\s${FULL_WIDTH_SPACE}]$`),
-      '名前の前後に空白文字は使用できません。'
-    ),
+    .matches(NAME_REGEX, '名前に記号は使えません。'),
   email: yup.string().required('メールアドレスは必須です。').email('無効なメールアドレスの形式です。'),
   password: yup
     .string()
@@ -118,7 +113,6 @@ export const Signup = () => {
       if (file) {
         await uploadImage(file, userResponse.token)
       }
-
       toast.success(SUCCESS_MESSAGE)
       closeModal()
       reset({ name: '', email: '', password: '' })
